@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Productos</title>
+    <!--Bulma-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+        <h1 class="title">Buscador de Productos</h1>
+        
+        <!--Barra de búsqueda y filtros-->
+        <div class="field is-grouped is grouped-multiline">
+            <!--Input de búsqueda-->
+            <p class="control is-expanded">
+                <input class="input" type="text" placeholder="Buscador producto..." id="searchInput">
+            </p>
+            
+
+        <!--Select de Categoría -->
+        <p class="control">
+            <div class="select">
+            <select id="categoryFilter">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+        </p>
+
+         <!--Select de otra característica -->
+         <p class="control">
+            <div class="select">
+                <select id="otherFilter">
+                    <option value="">Todos los niveles</option>
+                </select>
+            </div>
+         </p>
+
+         <!--Botón limpiar filtros-->
+         <p class="control">
+            <button class="button is-primary" id="clearFilters">Limpiar filtros</button>
+         </p>
+        </div>
+
+        <!--Mensaje cuando no hay resultados-->
+        <div id="noResults" class="notification is-warning is-hidden">
+            No se encontraron los productos.
+        </div>
+        
+        <!--Spinner / Loader-->
+        <div id="loader" class="has-text-centered id-hidden">
+            <button class="button is-loading is-large is-white">Cargando...</button>
+        </div>
+        
+        <!--Listado de productos-->
+        <div id="productList" class="columns is-multiline"></div>
+
+        <!--Modal para agregar y editar productos-->
+        <div class="modal" id="productModal">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+            <header class="modal-card-head">
+               <p class="modal-card-title" id="modalTitle">Agregar Producto</p>
+               <button class="delete" aria-label="close" id="closeModal"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="field">
+                    <label class="label">Nombre</label>
+                    <div class="control">
+                        <input class="input" type="text" id="productName">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Categoría</label>
+                    <div class="control">
+                        <input class="input" type="text" id="productCategory">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Otra característica</label>
+                    <div class="control">
+                        <input class="input" type="text" id="productOther">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Imagen URL</label>
+                    <div class="control">
+                        <input class="input" type="text" id="productImage">
+                    </div>
+                </div>
+                </section>
+
+                <!--footer-->
+                <footer class="modal-card-foot">
+                    <button class="button is-success" id="saveProduct">Guardar</button>
+                    <button class="button" id="cancelModal">Cancelar</button>
+                </footer>
+                </div>
+            </div>
+
+
+    </div>
+  </section>  
+
+      
+
+<script src="./app.js"></script>
+    
+</body>
+</html>
