@@ -44,11 +44,15 @@
                 </div>
                 </p>
 
-                <!--Select de otra característica -->
+                <!--Select de precio -->
                 <p class="control">
                 <div class="select">
                     <select id="priceFilter">
                         <option value="">Todos los precios</option>
+                        <option value="0-50">$0 - $50</option>
+                        <option value="51-100">$51 - $100</option>
+                        <option value="101-200">$101 - $200</option>
+                        <option value="201+">$201+</option>
                     </select>
                 </div>
                 </p>
@@ -60,8 +64,8 @@
             </div>
 
             <!--Mensaje cuando no hay resultados-->
-            <div id="noResults" class="notification is-warning is-hidden">
-                No se encontraron los productos.
+            <div id="noResults" class="notification is-warning is-hidden"><i class="fas fa-search mr-2"></i>
+                No se encontraron los productos que coinciden con los criterios de búsqueda.
             </div>
 
             <!--Spinner / Loader-->
@@ -96,13 +100,13 @@
                         <div class="field">
                             <label class="label">Precio</label>
                             <div class="control">
-                                <input class="input" type="text" id="productPrice">
+                                <input class="input" type="number" id="productPrice" step="0.01" min="0">
                             </div>
                         </div>
                         <div class="field">
                             <label class="label">Imagen URL</label>
                             <div class="control">
-                                <input class="input" type="text" id="productImage">
+                                <input class="input" type="url" id="productImage" placeholder="https://ejemplo.com/imagen.jpg">
                             </div>
                         </div>
                     </section>
@@ -110,14 +114,37 @@
                     <!--footer-->
                     <footer class="modal-card-foot">
                         <button class="button is-success" id="saveProduct">Guardar</button>
+                        <span class="icon"><i class="fas fa-save"></i></span>
+                        <span>Guardar</span>
                         <button class="button" id="cancelModal">Cancelar</button>
                     </footer>
                 </div>
             </div>
 
-
-        </div>
-    </section>
+                    <!--Modal confirmación para eliminar-->
+                    <div class="modal" id="deleteModal">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head has-background-danger">
+                                <p class="modal-card-title has-text-white">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>Confirmar Eliminación</p>
+                                <button class="delete" id="closeDeleteModal"></button>
+                            </header>
+                            <section class="modal-card-body"><p>¿Estás seguro que deseas eliminar este producto?</p>
+                            <p class="has-text-weight-bold" id="deleteProductName"></p>
+                            <p class="has-text-danger">Esta acción no se puede deshacer.</p>
+                        </section>
+                        <footer class="modal-card-foot">
+                            <button class="button-is-danger" id="confirmDelete">
+                            <span class="icon"><i class="fas fa-trash"></i></span>
+                            <span>Eliminar</span>
+                        </button>
+                        <button class="button" id="cancelDelete">Cancelar</button>
+                        </footer>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
 
 
