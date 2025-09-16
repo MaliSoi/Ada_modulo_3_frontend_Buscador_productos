@@ -12,7 +12,7 @@ const productList = $("productList");
 const searchInput = $("searchInput");
 const categoryFilter = $("categoryFilter");
 const priceFilter = $("priceFilter");
-const clearFiltersBtn = $("clearFiltersBtn");
+const clearFiltersBtn = $("clearFilters");
 const noResults = $("noResults");
 const loader = $("loader");
 
@@ -49,3 +49,74 @@ console.log("Referencias DOM obtenidas correctamente");
 //Funciones de la API (CRUD)
 
 //Obtener todos los productos desde MockAPI
+
+async function fetchProducts() {
+    console.log("Iniciando carga de productos...");
+    showLoader();
+
+    try {
+        const response = await fetch(API_URL);
+        console.log("Respuesta recibida:", response.status);
+
+        if(!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Productos cargados:", data.length, "elementos");
+        console.log("Datos recibidos:", data);
+
+        products = data;
+        populateFilters();
+        displayProducts(products);
+        updateResultsCount(products.length);
+        
+    } catch (error) {
+        console.log ("Error al cargar prodcutos:",error);
+        showError("Error al cargar los productos. Por favor, intenta nuevamente");
+    }finally{
+        hideLoader();
+    }
+    }
+
+  
+
+    //Funciones de utilidad (para ir testeando)
+
+    function showLoader() {
+        loader.classList.remove('is-hidden');
+    }
+
+    function hideLoader() {
+       loader.classList.add('is-hidden');
+    }
+
+    function updateResultsCount(count) {
+        updateResultsCount.textContent = `${count} producto${count !== 1? 's': '' }`;
+    }
+
+    function showSuccess(message) {
+        console.log("Éxito:", message);
+        alert(message);//temporal
+    }
+
+    //Event Listeners
+    document.addEventListener('DOMContentLoaded', function(){
+        console.log ("Don cargado, configurando event Listeners...");
+
+        //Filtros de búsqueda
+
+    });
+
+
+
+    //Cargar productos inicial
+    fetchProducts();
+
+
+
+
+
+
+
+
