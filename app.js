@@ -2,6 +2,7 @@
 //URL del MockApi
 const API_URL = "https://68c7410c442c663bd0291346.mockapi.io/api/v1/productos";
 
+
 const $ = id => document.getElementById(id);
 
 //Referencias a elementos del DOM
@@ -114,7 +115,7 @@ async function fetchProducts() {
  // Actualizar un producto existente
 
  async function updateProduct(id, productData) {
-    console.log("Actualizando producto ID:" ${id}, productData);
+    console.log(`Actualizando producto ID: ${id}`, productData);
     showLoader();
     
     try {
@@ -144,14 +145,33 @@ async function fetchProducts() {
                 showSuccess("Producto actualizado correctamente");
 
     } catch (error) {
-        console.error("❌ Error al actualizar producto:", error);
+        console.error("Error al actualizar producto:", error);
                 showError("Error al actualizar el producto. Por favor, intenta nuevamente.");
             } finally {
                 hideLoader();
             }
         }
 
-    
+    //Eliminar producto
+    async function deleteProduct(id, name) {
+        if (!confirm (`¿Deseas eliminar el producto "${name}"?`))return;
+        showLoader();
+
+        try {
+            const response = await fetch (`${API_URL}/${id}`, {method: "DELETE"});
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            products = products.filter(p => p.id !== id);
+            applyFilters();
+            showSuccess(`Producto "${name}" eliminado`);
+
+            } catch (error) {
+            console.error("Error al eliminar producto:", error);
+        showError("Error al eliminar el producto. Por favor, intenta nuevamente.");    
+        } finally {
+            hideLoader();
+        }
+    }
 
 
 
@@ -196,7 +216,7 @@ async function fetchProducts() {
                         </div>  
                 </div>
                 <footer class="card-footer">
-                <button class="card-footer-item button is-ghost has-text-primary" onclick="edirProduct('${product.id}'. '${product.name}')">
+                <button class="card-footer-item button is-ghost has-text-primary" onclick="editProduct('${product.id}' , '${product.name}')">
                 <span class="icon"><i class="fas fa-trash"></i></span>
                 <span>Eliminar</span>
                             </button>
@@ -220,7 +240,7 @@ async function fetchProducts() {
     function hideLoader() { loader.classList.add('is-hidden');}
 
     function updateResultsCount(count) {
-        updateResultsCount.textContent = `${count} producto${count !== 1? 's': '' }`;
+        resultsCount.textContent = `${count} producto${count !== 1? 's': '' }`;
     }
 
     function showSuccess(message) {
@@ -253,6 +273,8 @@ async function fetchProducts() {
 
     //Cargar productos inicial
     fetchProducts();
+
+
 
 
 
