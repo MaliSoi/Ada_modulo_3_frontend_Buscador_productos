@@ -56,12 +56,15 @@ async function fetchProducts() {
     try {
         const response = await fetch(API_URL);
         if(!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-        
-        const data = await response.json();
-        console.log("✅ Productos cargados:", data.length);
+
+       const data = await response.json();
+       console.log("Productos cargados:", data.length);
 
         products = data;
         displayProducts(products);
+
+        // ✅ Poblar filtros después de tener productos
+        populateFilters();
        
         
     } catch (error) {
@@ -233,7 +236,7 @@ async function fetchProducts() {
 
       // Poblar filtros con categorías únicas
         function populateFilters() {
-            console.log("🔽 Poblando filtros...");
+            console.log("Poblando filtros...");
             
             const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
             console.log("📋 Categorías encontradas:", categories);
@@ -242,19 +245,72 @@ async function fetchProducts() {
                 categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
         }
 
-      // Poblar filtros con categorías únicas
-        function populateFilters() {
-            console.log("🔽 Poblando filtros...");
-            
-            const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
-            console.log("📋 Categorías encontradas:", categories);
-            
-            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' + 
-                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        }
+       //Aplicar filtros de búsqueda
+       function applyFilters() {
+        console.log("Aplicando filtros...");
+
+        const searchItem = searchInput.value.toLowerCase().trim();
+        const selectedCategory = categoryFilter.value;
+        const selectedPriceRange = priceFilter.value;
+
+        console.log("Criterios de b;usqueda:", {
+            searchItem,
+            selectedCategory,
+            selectedPriceRange,
+        });
+
+         let filtered = products.filter(product => {
+            //Filtro por nombre
+            const matchesSearch = !searchItem ||
+            product.name.toLowerCase().includes(searchItem);
+
+            //Filtro por categoria
+            const matchesCategory = !selectedCategory ||
+            product.category === selectedCategory;
+
+            //Filtro por precio
+            let matchesPrice = true;
+            if(selectedPriceRange) {
+                const price = parseFloat(product.price || 0);
+                switch (selectedPriceRange) {
+                    case '0-50':
+                        matchesPrice = price >= 0 && price <= 50;
+                        break;
+                    case '51-100':
+                        matchesPrice = price >= 51 && price <= 100;
+                        break;
+                    case '101-200':
+                        matchesPrice = price >= 101 && price <= 200;
+                        break;
+                    case '201+':
+                        matchesPrice = price >= 201;
+                        break;
+                }
+            }
+
+            return matchesSearch && matchesCategory && matchesPrice;
+         });
+
+         console.log("Productos filtrados:",filtered.length);
+         
+         // Mostrar productos filtrados
+         displayProducts(filtered);
+   }
+
+         //Limpiar todos los filtros
+
+         function clearFilters(){
+            console.log("Limpiando Filtros ...");
+
+            searchInput.value= '';
+            categoryFilter.value='';
+            priceFilter.value='';
+
+            displayProducts(products);
+         }
 
 
-//Filtros de búsqueda
+
 
 
 
@@ -272,17 +328,26 @@ async function fetchProducts() {
             alert(message); // Temporal
         }
 
+ 
 
-       function applyFilters() {
-      // Por ahora mostramos todo
-      displayProducts(products);
-}
-  
+    //Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+         console.log ("DOM cargado, configurando event Listeners...");
 
-        //Event Listeners
-   document.addEventListener('DOMContentLoaded', () => {
-    console.log ("DOM cargado, configurando event Listeners...");
-    // Acá podés enganchar filtros, modal, etc.
+    // Filtros y búsqueda
+            searchInput.addEventListener('input', applyFilters);
+            categoryFilter.addEventListener('change', applyFilters);
+            priceFilter.addEventListener('change', applyFilters);
+            clearFiltersBtn.addEventListener('click', ()=>{
+                searchInput.value = '';
+                categoryFilter.value= '';
+                priceFilter.value = '';
+                displayProducts(products);
+            });
+
+   //Poblar categorías automáticamente
+   populateFilters();
+
 });
 
 
