@@ -36,7 +36,6 @@ const cancelDelete = $("cancelDelete");
 const deleteProductName = $("deleteProductName");
 
 // Resultados
-const resultsCount = $("resultsCount"); 
 
 let products = []; // lista completa de productos desde la API
 let editId = null; // id del producto que se está editando
@@ -45,7 +44,6 @@ let deleteId = null; //id del producto a eliminar
 
 console.log("Inicializando aplicación...");
 console.log("URL de la API:", API_URL);
-console.log("Referencias DOM obtenidas correctamente");
 
 //Funciones de la API (CRUD)
 
@@ -64,7 +62,7 @@ async function fetchProducts() {
 
         products = data;
         displayProducts(products);
-        updateResultsCount(products.length);
+       
         
     } catch (error) {
         console.log ("Error al cargar productos:", error);
@@ -80,13 +78,19 @@ async function fetchProducts() {
         showLoader();
        
         try {
-         
+             // Si no trae imagen, usamos un placeholder seguro
+             const imageUrl = productData.image && productData.image.trim() !== "" 
+            ? productData.image 
+            : "https://placehold.co/300x225?text=Sin+Imagen";
+
+
             const response = await fetch(API_URL, {
             method:"POST",
             headers:{'Content-Type': 'application/json'},
             body: JSON.stringify({
                  ...productData,
-                price: productData.price.toString() // price siempre como string
+                price: productData.price.toString(), // price siempre como string
+                image: imageUrl
         })
     });
 
@@ -119,12 +123,18 @@ async function fetchProducts() {
     showLoader();
     
     try {
-     const response = await fetch (`${API_URL}/${id}`, {
+
+        const imageUrl = productData.image && productData.image.trim() !== "" 
+            ? productData.image 
+            : "https://placehold.co/300x225?text=Sin+Imagen";
+
+        const response = await fetch (`${API_URL}/${id}`, {
             method: "PUT",
              headers:{'Content-Type': 'application/json'},
             body: JSON.stringify({
                 ...productData,
-                price: productData.price.toString()
+                price: productData.price.toString(),
+                image: imageUrl
             })
         });
 
@@ -167,18 +177,11 @@ async function fetchProducts() {
 
             } catch (error) {
             console.error("Error al eliminar producto:", error);
-        showError("Error al eliminar el producto. Por favor, intenta nuevamente.");    
-        } finally {
+            showError("Error al eliminar el producto. Por favor, intenta nuevamente.");    
+            } finally {
             hideLoader();
         }
     }
-
-
-
-
-
- 
-
 
     //Mostrar productos en el DOM
     function displayProducts(productsToShow){
@@ -187,7 +190,6 @@ async function fetchProducts() {
         if(productsToShow.length === 0) {
             productList.innerHTML = '';
             noResults.classList.remove('is-hidden');
-            updateResultsCount(0);
             return;
         }
 
@@ -224,51 +226,64 @@ async function fetchProducts() {
                  </div>    
                </div>
            `).join('');
-          
-           updateResultsCount(productsToShow.length);
 
            }
 
 
 
-         
-      
-    //Funciones de utilidad (para ir testeando)
+      // Poblar filtros con categorías únicas
+        function populateFilters() {
+            console.log("🔽 Poblando filtros...");
+            
+            const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            console.log("📋 Categorías encontradas:", categories);
+            
+            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' + 
+                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
 
-    function showLoader() { loader.classList.remove('is-hidden');}
-
-    function hideLoader() { loader.classList.add('is-hidden');}
-
-    function updateResultsCount(count) {
-        resultsCount.textContent = `${count} producto${count !== 1? 's': '' }`;
-    }
-
-    function showSuccess(message) {
-        console.log("Éxito:", message);
-        alert(message);//temporal
-    }
+      // Poblar filtros con categorías únicas
+        function populateFilters() {
+            console.log("🔽 Poblando filtros...");
+            
+            const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+            console.log("📋 Categorías encontradas:", categories);
+            
+            categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' + 
+                categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
 
 
-    function showError(message) {
-        console.error("Error:", message);
-        alert(message); // temporal
-    }
+//Filtros de búsqueda
 
-    function applyFilters() {
-        // Por ahora mostramos todo
-        displayProducts(products);
+
+
+           //Funciones de utilidad 
+          function showLoader() { loader.classList.remove('is-hidden'); }
+          function hideLoader() { loader.classList.add('is-hidden'); }
+
+          function showSuccess(message) {
+          console.log("Éxito:", message);
+          alert(message); // temporal
+     }
+           
+           function showError(message) {
+            //console.error("Error:", message);
+            alert(message); // Temporal
+        }
+
+
+       function applyFilters() {
+      // Por ahora mostramos todo
+      displayProducts(products);
 }
+  
 
-
-
-    //Event Listeners
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log ("DOM cargado, configurando event Listeners...");
-
-        //Filtros de búsqueda
-
-    });
-
+        //Event Listeners
+   document.addEventListener('DOMContentLoaded', () => {
+    console.log ("DOM cargado, configurando event Listeners...");
+    // Acá podés enganchar filtros, modal, etc.
+});
 
 
     //Cargar productos inicial
