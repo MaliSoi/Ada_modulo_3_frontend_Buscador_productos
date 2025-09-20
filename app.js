@@ -1,9 +1,6 @@
 
 //URL del MockApi
-const API_URL = "https://68c7410c442c663bd0291346.mockapi.io/api/v1/products/productos";
-
-
-
+const API_URL = "https://68c7410c442c663bd0291346.mockapi.io/api/v1/productos";
 
 const $ = id => document.getElementById(id);
 
@@ -59,23 +56,17 @@ async function fetchProducts() {
 
     try {
         const response = await fetch(API_URL);
-        console.log("Respuesta recibida:", response.status);
-
-        if(!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-
+        if(!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        
         const data = await response.json();
-        console.log("Productos cargados:", data.length, "elementos");
-        console.log("Datos recibidos:", data);
+        console.log("✅ Productos cargados:", data.length);
 
         products = data;
-        //populateFilters();
         displayProducts(products);
         updateResultsCount(products.length);
         
     } catch (error) {
-        console.log ("Error al cargar productos:",error);
+        console.log ("Error al cargar productos:", error);
         showError("Error al cargar los productos. Por favor, intenta nuevamente");
     } finally {
         hideLoader();
@@ -86,18 +77,21 @@ async function fetchProducts() {
      async function createProduct(productData) {
         console.log("Creando nuevo producto:", productData);
         showLoader();
-     try {
-        const response = await fetch(API_URL, {
+       
+        try {
+         
+            const response = await fetch(API_URL, {
             method:"POST",
-            headers:{
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(productData)
-        });
+            headers:{'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                 ...productData,
+                price: productData.price.toString() // price siempre como string
+        })
+    });
 
-        console.log("Respuesta de creación:", response.status);
         if(!response.ok) {
-            throw new Error (`Error HTTP: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`Error HTTP: ${response.status}, Detalle: ${errorText}`);
         }
 
         const newProduct = await response.json();
@@ -117,6 +111,53 @@ async function fetchProducts() {
      }
 }   
 
+ // Actualizar un producto existente
+
+ async function updateProduct(id, productData) {
+    console.log("Actualizando producto ID:" ${id}, productData);
+    showLoader();
+    
+    try {
+     const response = await fetch (`${API_URL}/${id}`, {
+            method: "PUT",
+             headers:{'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                ...productData,
+                price: productData.price.toString()
+            })
+        });
+
+        if(!response.ok){
+            const errorText = await response.text();
+            throw new Error(`Error HTTP:${response.status},Detalle: ${errorText}`);
+            }
+
+        const updateProduct = await response.json();
+        console.log("Producto actualizado:", updateProduct);
+
+        //Actualizar la lista local
+        const index = products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    products[index] = updateProduct;
+                    applyFilters();
+                }
+                showSuccess("Producto actualizado correctamente");
+
+    } catch (error) {
+        console.error("❌ Error al actualizar producto:", error);
+                showError("Error al actualizar el producto. Por favor, intenta nuevamente.");
+            } finally {
+                hideLoader();
+            }
+        }
+
+    
+
+
+
+
+
+ 
 
 
     //Mostrar productos en el DOM
@@ -146,8 +187,9 @@ async function fetchProducts() {
                 <div class="media-content">
                       <p class="title is-5">${product.name}</p>
                        <p class="title is-6">
-                          <span> class="tag is-info">${productCategory}</span></p>
-                          </div>
+                       <span class="tag is-info">${product.category}</span>
+                       </p>
+                       </div>
                         </div>
                         <div class="content">
                         <p class="title is-4 has-text-success">$${parseFloat(product.price || 0).toFixed(2)}</p>
@@ -173,13 +215,9 @@ async function fetchProducts() {
       
     //Funciones de utilidad (para ir testeando)
 
-    function showLoader() {
-        loader.classList.remove('is-hidden');
-    }
+    function showLoader() { loader.classList.remove('is-hidden');}
 
-    function hideLoader() {
-       loader.classList.add('is-hidden');
-    }
+    function hideLoader() { loader.classList.add('is-hidden');}
 
     function updateResultsCount(count) {
         updateResultsCount.textContent = `${count} producto${count !== 1? 's': '' }`;
@@ -204,8 +242,8 @@ async function fetchProducts() {
 
 
     //Event Listeners
-    document.addEventListener('DOMContentLoaded', function(){
-        console.log ("Don cargado, configurando event Listeners...");
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log ("DOM cargado, configurando event Listeners...");
 
         //Filtros de búsqueda
 
