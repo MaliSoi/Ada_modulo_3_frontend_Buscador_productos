@@ -308,8 +308,19 @@ async function fetchProducts() {
 
             displayProducts(products);
          }
-
-
+        
+         // Funciones del modal
+        
+         // Abrir modal para agregar producto
+        function openAddModal(){
+            //console.log("Abriendo modal para agregar producto");
+            
+           // editId = null;
+           // modalTitle.textContent = 'Agregar Producto';
+            //clearForm();
+            productModal.classList.add('is-active');
+        }
+        
 
 
 
@@ -345,6 +356,10 @@ async function fetchProducts() {
                 displayProducts(products);
             });
 
+     // Modal de producto
+            addProductBtn.addEventListener('click',openAddModal);
+                    
+
    //Poblar categorías automáticamente
    populateFilters();
 
@@ -353,7 +368,7 @@ async function fetchProducts() {
 
     //Cargar productos inicial
     fetchProducts();
-
+  
 
 
 
