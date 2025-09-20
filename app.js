@@ -30,7 +30,7 @@ const productImage = $("productImage");
 
 //Modal de eliminación
 const deleteModal = $("deleteModal");
-const closeDeleteModal = $("closeDeleteModal");
+const closeDeleteModalBtn = $("closeDeleteModal");
 const confirmDelete = $("confirmDelete");
 const cancelDelete = $("cancelDelete");
 const deleteProductName = $("deleteProductName");
@@ -63,7 +63,7 @@ async function fetchProducts() {
         products = data;
         displayProducts(products);
 
-        // ✅ Poblar filtros después de tener productos
+        // Poblar filtros después de tener productos
         populateFilters();
        
         
@@ -260,7 +260,7 @@ async function fetchProducts() {
         const selectedCategory = categoryFilter.value;
         const selectedPriceRange = priceFilter.value;
 
-        console.log("Criterios de b;usqueda:", {
+        console.log("Criterios de busqueda:", {
             searchItem,
             selectedCategory,
             selectedPriceRange,
@@ -350,8 +350,73 @@ async function fetchProducts() {
             productModal.classList.add('is-active');
         }
 
+        // Cerrar modal
+        function closeProductModal() {
+            console.log ("cerrando modal de producto");
+            productModal.classList.remove('is-active');
+            clearForm();
+            editId = null;
+        }
 
+        //Limpiar formluario 
+        function clearForm(){
+            console.log("Limpiando Formulario");
 
+            productName.value = '';
+            productCategory.value='';
+            productPrice.value= '';
+            productImage.value = '';
+        }
+
+        //Guardar producto(crear o actualizar)
+        async function handleSaveProduct(){
+            console.log("Procesando guardado de producto");
+
+            const formData = {
+                name: productName.value.trim(),
+                category: productCategory.value.trim(),
+                price:productPrice.value.trim(),
+                image:productImage.value.trim(),
+            };
+            console.log("Datos del formulario:",formData);
+
+            //Validación básica
+            if(!formData.name || !formData.category || !formData.price){
+                console.warn("Faltan campos requeridos");
+                showError("Por favor, completa todos los campos requeridos.");
+                return;
+            }
+
+            if(editId){
+                await updateProduct (editId, formData);
+            } else {
+                await createProduct(formData);
+            }
+            closeProductModal();
+        }
+
+        //Funciones para eliminar
+        // Abrir modal de eliminación
+        function openDeleteModal(id, name) {
+        deleteId = id;
+        deleteProductName.textContent = name;
+        deleteModal.classList.add('is-active');
+        }
+        
+        // Cerrar modal de eliminación
+        function closeDeleteModal() {
+        deleteModal.classList.remove('is-active');
+        deleteId = null;
+        }
+
+        // Confirmar eliminación
+        async function handleConfirmDelete() {
+        if (!deleteId) return;
+        const product = products.find(p => p.id === deleteId);
+        await deleteProduct(deleteId, product?.name || "");
+        closeDeleteModal();
+        }
+    
 
            //Funciones de utilidad 
           function showLoader() { loader.classList.remove('is-hidden'); }
@@ -386,6 +451,26 @@ async function fetchProducts() {
 
      // Modal de producto
             addProductBtn.addEventListener('click',openAddModal);
+            closeModal.addEventListener('click', closeProductModal);
+            cancelModal.addEventListener('click', closeProductModal);
+            saveProduct.addEventListener('click', handleSaveProduct);
+    
+     //Modal de eliminación
+      if (closeDeleteModalBtn) { // verificamos que exista en el DOM
+        closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+    }
+     cancelDelete.addEventListener('click', closeDeleteModal);
+     confirmDelete.addEventListener('click', handleConfirmDelete);
+
+     //Cerrar modales al hacer click en el fondo
+     document.querySelectorAll('.modal-background').forEach(bg => {
+       bg.addEventListener('click', () => {
+        closeProductModal();
+        closeDeleteModal();
+       }); 
+     });
+
+     console.log("Event listeners configurados");
                     
 
    //Poblar categorías automáticamente
@@ -398,6 +483,7 @@ async function fetchProducts() {
     fetchProducts();
   
 
+    //console.log("🎉 Script cargado completamente");
 
 
 
