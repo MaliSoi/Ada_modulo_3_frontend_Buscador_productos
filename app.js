@@ -199,11 +199,12 @@ async function fetchProducts() {
         noResults.classList.add('is-hidden');
 
         productList.innerHTML = productsToShow.map(product =>`
-            <div class="column is-one-third">
+            <div class="column is-one-quarter">
             <div class="card">
             <div class="card-image">
                 <figure class="image is-4by3">
-                <img src="${product.image || 'https://placehold.co/300x225?text=Sin+Imagen'}"alt="${product.name}"
+                <img src="${product.image || 'https://placehold.co/300x225?text=Sin+Imagen'}"
+                alt="${product.name}" 
                 onerror="this.src='https://placehold.co/300x225?text=Sin+Imagen'">
                 </figure>
                 </div>
@@ -212,21 +213,27 @@ async function fetchProducts() {
                 <div class="media-content">
                       <p class="title is-5">${product.name}</p>
                        <p class="title is-6">
-                       <span class="tag is-info">${product.category}</span>
+                       <span class="tag is-info">${product.category || 'Sin categoría'}</span>
                        </p>
                        </div>
                         </div>
                         <div class="content">
-                        <p class="title is-4 has-text-success">$${parseFloat(product.price || 0).toFixed(2)}</p>
+                        <p class="title is-4 has-text-success">
+                        $${parseFloat(product.price || 0).toFixed(2)}
+                        </p>
                         </div>  
-                </div>
+                    </div>
                 <footer class="card-footer">
-                <button class="card-footer-item button is-ghost has-text-primary" onclick="editProduct('${product.id}' , '${product.name}')">
+                <a href="#" class="card-footer-item has-text-info" onclick="editProduct('${product.id}')">
+                <span class="icon"><i class="fas fa-edit"></i></span>
+                <span>Editar</span>
+                </a>
+                <a href="#" class="card-footer-item has-text-danger" onclick="openDeleteModal('${product.id}', '${product.name}')">
                 <span class="icon"><i class="fas fa-trash"></i></span>
                 <span>Eliminar</span>
-                            </button>
-                     </footer>    
-                 </div>    
+                </a>
+                </footer>
+                </div>    
                </div>
            `).join('');
 
@@ -313,14 +320,35 @@ async function fetchProducts() {
         
          // Abrir modal para agregar producto
         function openAddModal(){
-            //console.log("Abriendo modal para agregar producto");
+            console.log("Abriendo modal para agregar producto");
             
-           // editId = null;
-           // modalTitle.textContent = 'Agregar Producto';
+            editId = null;
+            modalTitle.textContent = 'Agregar Producto';
             //clearForm();
             productModal.classList.add('is-active');
         }
         
+        //Editar producto existente
+        function editProduct(id) {
+            console.log("Abriendo modal para editar el producto ID:",id);
+
+            const product = products.find(p => p.id === id);
+            if(!product){
+                console.error("Producto no encomtrado para editar:",id)
+                return;
+            }
+            console.log("Datos del producto a editar:", product);
+
+            editId = id;
+            modalTitle.textContent ='Editar Producto';
+
+            productName.value = product.name ||'';
+            productCategory.value = product.category || '';
+            productPrice.value = product.price || '';
+            productImage.value = product.image || '';
+
+            productModal.classList.add('is-active');
+        }
 
 
 
