@@ -22,7 +22,6 @@ const closeModal = $("closeModal");
 const cancelModal = $("cancelModal");
 const saveProduct = $("saveProduct");
 const addProductBtn = $("addProductBtn");
-
 const productName = $("productName");
 const productCategory = $("productCategory");
 const productPrice = $("productPrice");
@@ -42,15 +41,13 @@ let editId = null; // id del producto que se está editando
 let deleteId = null; //id del producto a eliminar
 
 
-console.log("Inicializando aplicación...");
-console.log("URL de la API:", API_URL);
 
 //Funciones de la API (CRUD)
 
 //Obtener todos los productos desde MockAPI
 
 async function fetchProducts() {
-    console.log("Iniciando carga de productos...");
+    
     showLoader();
 
     try {
@@ -58,8 +55,8 @@ async function fetchProducts() {
         if(!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
        const data = await response.json();
-       console.log("Productos cargados:", data.length);
-
+      
+      
         products = data;
         displayProducts(products);
 
@@ -68,7 +65,7 @@ async function fetchProducts() {
        
         
     } catch (error) {
-        console.log ("Error al cargar productos:", error);
+       
         showError("Error al cargar los productos. Por favor, intenta nuevamente");
     } finally {
         hideLoader();
@@ -77,7 +74,7 @@ async function fetchProducts() {
 
      // Crear un nuevo producto
      async function createProduct(productData) {
-        console.log("Creando nuevo producto:", productData);
+        
         showLoader();
        
         try {
@@ -103,15 +100,14 @@ async function fetchProducts() {
         }
 
         const newProduct = await response.json();
-        console.log("Producto creado:", newProduct);
-
+      
         //Actualizar lista local
         products.push(newProduct);
         applyFilters();
         showSuccess("Producto agregado correctamente");
 
      } catch (error) {
-        console.log ("Error al crear producto:", error);
+       
         showError("Error al crear el producto. Por favor, intenta nuevamente.");
 
      }finally{
@@ -122,7 +118,7 @@ async function fetchProducts() {
  // Actualizar un producto existente
 
  async function updateProduct(id, productData) {
-    console.log(`Actualizando producto ID: ${id}`, productData);
+    
     showLoader();
     
     try {
@@ -147,7 +143,7 @@ async function fetchProducts() {
             }
 
         const updateProduct = await response.json();
-        console.log("Producto actualizado:", updateProduct);
+       
 
         //Actualizar la lista local
         const index = products.findIndex(p => p.id === id);
@@ -158,7 +154,7 @@ async function fetchProducts() {
                 showSuccess("Producto actualizado correctamente");
 
     } catch (error) {
-        console.error("Error al actualizar producto:", error);
+        
                 showError("Error al actualizar el producto. Por favor, intenta nuevamente.");
             } finally {
                 hideLoader();
@@ -179,74 +175,92 @@ async function fetchProducts() {
             showSuccess(`Producto "${name}" eliminado`);
 
             } catch (error) {
-            console.error("Error al eliminar producto:", error);
+            
             showError("Error al eliminar el producto. Por favor, intenta nuevamente.");    
             } finally {
             hideLoader();
         }
     }
 
-    //Mostrar productos en el DOM
-    function displayProducts(productsToShow){
-        console.log ("Mostrando", productsToShow.length,"productos");
 
-        if(productsToShow.length === 0) {
-            productList.innerHTML = '';
-            noResults.classList.remove('is-hidden');
-            return;
+// Tonos de azul de más oscuro a más claro
+const blueShades = [
+    'is-text',   
+    'is-link',      
+    'is-info',
+    'is-warning'      
+];
+
+// Objeto para mapear categoría a color
+const categoryColors = {};
+
+    //Mostrar productos en el DOM
+    function displayProducts(productsToShow) {
+    
+
+    if (productsToShow.length === 0) {
+        productList.innerHTML = '';
+        noResults.classList.remove('is-hidden');
+        return;
+    }
+
+    noResults.classList.add('is-hidden');
+
+    productList.innerHTML = productsToShow.map(product => {
+        const { id, name, category, price, image } = product; // destructuring
+        const imageUrl = image || 'https://placehold.co/300x225?text=Sin+Imagen';
+        const priceFormatted = parseFloat(price || 0).toFixed(2);
+
+       // Asignar color azul a cada categoría
+        if (category && !categoryColors[category]) {
+            const usedColors = Object.values(categoryColors);
+            const availableColors = blueShades.filter(c => !usedColors.includes(c));
+            categoryColors[category] = availableColors[0] || 'is-info';
         }
 
-        noResults.classList.add('is-hidden');
+        const colorClass = categoryColors[category] || 'is-info';
 
-        productList.innerHTML = productsToShow.map(product =>`
-            <div class="column is-one-quarter">
+
+        return `
+        <div class="column is-one-quarter">
             <div class="card">
-            <div class="card-image">
-                <figure class="image is-4by3">
-                <img src="${product.image || 'https://placehold.co/300x225?text=Sin+Imagen'}"
-                alt="${product.name}" 
-                onerror="this.src='https://placehold.co/300x225?text=Sin+Imagen'">
-                </figure>
+                <div class="card-image">
+                    <figure class="image is-4by3">
+                        <img src="${imageUrl}" alt="${name}" 
+                             onerror="this.src='https://placehold.co/300x225?text=Sin+Imagen'">
+                    </figure>
                 </div>
                 <div class="card-content">
-                <div class="media">
-                <div class="media-content">
-                      <p class="title is-5">${product.name}</p>
-                       <p class="title is-6">
-                       <span class="tag is-info">${product.category || 'Sin categoría'}</span>
-                       </p>
-                       </div>
-                        </div>
-                        <div class="content">
-                        <p class="title is-4 has-text-success">
-                        $${parseFloat(product.price || 0).toFixed(2)}
-                        </p>
-                        </div>  
+                    <p class="title is-5">${name}</p>
+                    <div class="tags">
+                       
+                      <span class="tag is-medium ${colorClass}">${category || 'Sin categoría'}</span>
+                        <span class="tag is-success is-medium">$${priceFormatted}</span>
                     </div>
+                </div>
                 <footer class="card-footer">
-                <a href="#" class="card-footer-item has-text-info" onclick="editProduct('${product.id}')">
-                <span class="icon"><i class="fas fa-edit"></i></span>
-                <span>Editar</span>
-                </a>
-                <a href="#" class="card-footer-item has-text-danger" onclick="openDeleteModal('${product.id}', '${product.name}')">
-                <span class="icon"><i class="fas fa-trash"></i></span>
-                <span>Eliminar</span>
-                </a>
+                    <a href="#" class="card-footer-item has-text-info" onclick="editProduct('${id}')">
+                        <span class="icon"><i class="fas fa-edit"></i></span>
+                        <span>Editar</span>
+                    </a>
+                    <a href="#" class="card-footer-item has-text-danger" onclick="openDeleteModal('${id}', '${name}')">
+                        <span class="icon"><i class="fas fa-trash"></i></span>
+                        <span>Eliminar</span>
+                    </a>
                 </footer>
-                </div>    
-               </div>
-           `).join('');
-
-           }
-
+            </div>
+        </div>
+        `;
+    }).join('');
+}
 
 
       // Poblar filtros con categorías únicas
         function populateFilters() {
-            console.log("Poblando filtros...");
+            
             
             const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
-            console.log("📋 Categorías encontradas:", categories);
+           
             
             categoryFilter.innerHTML = '<option value="">Todas las categorías</option>' + 
                 categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
@@ -254,17 +268,11 @@ async function fetchProducts() {
 
        //Aplicar filtros de búsqueda
        function applyFilters() {
-        console.log("Aplicando filtros...");
+       
 
         const searchItem = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter.value;
         const selectedPriceRange = priceFilter.value;
-
-        console.log("Criterios de busqueda:", {
-            searchItem,
-            selectedCategory,
-            selectedPriceRange,
-        });
 
          let filtered = products.filter(product => {
             //Filtro por nombre
@@ -298,16 +306,16 @@ async function fetchProducts() {
             return matchesSearch && matchesCategory && matchesPrice;
          });
 
-         console.log("Productos filtrados:",filtered.length);
+        
          
          // Mostrar productos filtrados
          displayProducts(filtered);
-   }
+        }
 
          //Limpiar todos los filtros
 
          function clearFilters(){
-            console.log("Limpiando Filtros ...");
+            
 
             searchInput.value= '';
             categoryFilter.value='';
@@ -320,24 +328,23 @@ async function fetchProducts() {
         
          // Abrir modal para agregar producto
         function openAddModal(){
-            console.log("Abriendo modal para agregar producto");
+            
             
             editId = null;
             modalTitle.textContent = 'Agregar Producto';
-            //clearForm();
+            clearForm();
             productModal.classList.add('is-active');
         }
         
         //Editar producto existente
         function editProduct(id) {
-            console.log("Abriendo modal para editar el producto ID:",id);
-
+           
             const product = products.find(p => p.id === id);
             if(!product){
-                console.error("Producto no encomtrado para editar:",id)
+               
                 return;
             }
-            console.log("Datos del producto a editar:", product);
+           
 
             editId = id;
             modalTitle.textContent ='Editar Producto';
@@ -352,7 +359,7 @@ async function fetchProducts() {
 
         // Cerrar modal
         function closeProductModal() {
-            console.log ("cerrando modal de producto");
+           
             productModal.classList.remove('is-active');
             clearForm();
             editId = null;
@@ -360,7 +367,7 @@ async function fetchProducts() {
 
         //Limpiar formluario 
         function clearForm(){
-            console.log("Limpiando Formulario");
+           
 
             productName.value = '';
             productCategory.value='';
@@ -370,7 +377,7 @@ async function fetchProducts() {
 
         //Guardar producto(crear o actualizar)
         async function handleSaveProduct(){
-            console.log("Procesando guardado de producto");
+           
 
             const formData = {
                 name: productName.value.trim(),
@@ -378,11 +385,11 @@ async function fetchProducts() {
                 price:productPrice.value.trim(),
                 image:productImage.value.trim(),
             };
-            console.log("Datos del formulario:",formData);
+            //console.log("Datos del formulario:",formData);
 
             //Validación básica
             if(!formData.name || !formData.category || !formData.price){
-                console.warn("Faltan campos requeridos");
+                
                 showError("Por favor, completa todos los campos requeridos.");
                 return;
             }
@@ -416,6 +423,18 @@ async function fetchProducts() {
         await deleteProduct(deleteId, product?.name || "");
         closeDeleteModal();
         }
+
+        // Cerrar modal al hacer click en el fondo de cada modal
+        document.querySelectorAll('.modal').forEach(modal => {
+        const bg = modal.querySelector('.modal-background');
+        if(bg){
+        bg.addEventListener('click', () => {
+            modal.classList.remove('is-active');
+            if(modal.id === 'productModal') clearForm();
+            if(modal.id === 'deleteModal') deleteId = null;
+        });
+        }
+        });
     
 
            //Funciones de utilidad 
@@ -423,12 +442,12 @@ async function fetchProducts() {
           function hideLoader() { loader.classList.add('is-hidden'); }
 
           function showSuccess(message) {
-          console.log("Éxito:", message);
+          
           alert(message); // temporal
      }
            
            function showError(message) {
-            //console.error("Error:", message);
+            
             alert(message); // Temporal
         }
 
@@ -436,7 +455,7 @@ async function fetchProducts() {
 
     //Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
-         console.log ("DOM cargado, configurando event Listeners...");
+        
 
     // Filtros y búsqueda
             searchInput.addEventListener('input', applyFilters);
@@ -456,35 +475,36 @@ async function fetchProducts() {
             saveProduct.addEventListener('click', handleSaveProduct);
     
      //Modal de eliminación
-      if (closeDeleteModalBtn) { // verificamos que exista en el DOM
-        closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
-    }
+      if (closeDeleteModalBtn) closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
      cancelDelete.addEventListener('click', closeDeleteModal);
      confirmDelete.addEventListener('click', handleConfirmDelete);
 
      //Cerrar modales al hacer click en el fondo
-     document.querySelectorAll('.modal-background').forEach(bg => {
-       bg.addEventListener('click', () => {
-        closeProductModal();
-        closeDeleteModal();
-       }); 
-     });
-
-     console.log("Event listeners configurados");
+     document.querySelectorAll('.modal').forEach(modal => {
+       const bg = modal.querySelector('.modal-background');
+       if(bg){
+            bg.addEventListener('click', () => {
+                modal.classList.remove('is-active');
+                if(modal.id === 'productModal') clearForm();
+                if(modal.id === 'deleteModal') deleteId = null;
+            });
+        }
+    });
+});
+     
                     
 
    //Poblar categorías automáticamente
    populateFilters();
 
-});
+
 
 
     //Cargar productos inicial
     fetchProducts();
   
 
-    //console.log("🎉 Script cargado completamente");
-
+    
 
 
 
