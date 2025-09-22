@@ -206,6 +206,7 @@ const categoryColors = {};
 
     noResults.classList.add('is-hidden');
 
+    
     productList.innerHTML = productsToShow.map(product => {
         const { id, name, category, price, image } = product; // destructuring
         const imageUrl = image || 'https://placehold.co/300x225?text=Sin+Imagen';
@@ -222,7 +223,7 @@ const categoryColors = {};
 
 
         return `
-        <div class="column is-one-quarter">
+       <div class="column is-full-mobile is-half-tablet is-one-quarter-desktop">
             <div class="card">
                 <div class="card-image">
                     <figure class="image is-4by3">
@@ -250,8 +251,7 @@ const categoryColors = {};
                 </footer>
             </div>
         </div>
-        `;
-    }).join('');
+        `;}).join('');
 }
 
 
