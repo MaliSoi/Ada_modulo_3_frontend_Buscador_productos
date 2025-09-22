@@ -44,7 +44,7 @@ cd Ada_modulo_3_frontend_Buscador_productos
 
 Abre el archivo index.html en tu navegador o utiliza una extensión como Live Server en VS Code.
 
-Alternativamente, puedes ver la versión desplegada en: [URL del deploy]
+Alternativamente, puedes ver la versión desplegada en: [[URL del deploy](https://buscador-de-productos.netlify.app/)]
 
 📁 Estructura del proyecto
 proyecto/
