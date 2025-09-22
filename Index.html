@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Productos</title>
+    <!--Bulma-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,
+    <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
+    <text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+
+</head>
+
+<body>
+    <!--Header-->
+    <header class="navbar is-primary is-fixed-top">
+    <div class="navbar-brand">
+    <a class="navbar-item" href="#">
+      <i class="fas fa-shopping-cart mr-2"></i>
+      <span class="has-text-weight-bold">Mi Tienda</span>
+    </a>
+    <a role="button" class="navbar-burger" data-target="navbarMenu" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarMenu" class="navbar-menu">
+    <div class="navbar-end">
+      <a class="navbar-item" href="#">Inicio</a>
+      <a class="navbar-item" href="#">Productos</a>
+      <a class="navbar-item" href="#">Contacto</a>
+    </div>
+  </div>
+</header>
+
+<!-- Para que el contenido no quede tapado por el navbar fijo -->
+<div style="margin-top: 4.5rem;"></div>
+
+
+    <section class="section">
+        <div class="container">
+            <h1 class="title has-text-centered"><i class="fas fa-shopping-cart mr-3"></i>Buscador de Productos</h1>
+            
+            <!--Botón agregar producto-->
+            <div class="level mb-5">
+                <div class="level-left">
+                    <button class="button is-primary" id="addProductBtn">
+                        <span class="icon"><i class="fas fa-plus"></i></span>
+                        <span>Agregar Producto</span>
+                    </button>
+                </div>   
+            </div>
+
+            <!--Barra de búsqueda y filtros-->
+            <div class="field is-grouped is grouped-multiline">
+                <!--Input de búsqueda-->
+                <p class="control is-expanded">
+                    <input class="input" type="text" placeholder="Buscador de producto..." id="searchInput">
+                </p>
+
+
+                <!--Select de Categoría -->
+                <p class="control">
+                <div class="select">
+                    <select id="categoryFilter">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+                </p>
+
+                <!--Select de precio -->
+                <p class="control">
+                <div class="select">
+                    <select id="priceFilter">
+                        <option value="">Todos los precios</option>
+                        <option value="0-50">$0 - $50</option>
+                        <option value="51-100">$51 - $100</option>
+                        <option value="101-200">$101 - $200</option>
+                        <option value="201+">$201+</option>
+                    </select>
+                </div>
+                </p>
+
+                <!--Botón limpiar filtros-->
+                <p class="control">
+                    <button class="button is-primary ml-3" id="clearFilters">Limpiar filtros</button>
+                </p>
+            </div>
+
+            <!--Mensaje cuando no hay resultados-->
+            <div id="noResults" class="notification is-warning is-hidden"><i class="fas fa-search mr-2"></i>
+                No se encontraron los productos que coinciden con los criterios de búsqueda.
+            </div>
+
+            <!--Spinner / Loader-->
+            <div id="loader" class="is-hidden has-text-centered">
+                <button class="button is-loading is-large is-white">Cargando...</button>
+            </div>
+
+            <!--Listado de productos-->
+            <div id="productList" class="columns is-multiline"></div>
+
+            <!--Modal para agregar y editar productos-->
+            <div class="modal" id="productModal">
+                <div class="modal-background"></div>
+                <div class="modal-card">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title" id="modalTitle">Agregar Producto</p>
+                        <button class="delete" aria-label="close" id="closeModal"></button>
+                    </header>
+                    <section class="modal-card-body">
+                        <div class="field">
+                            <label class="label">Nombre</label>
+                            <div class="control">
+                                <input class="input" type="text" id="productName">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Categoría</label>
+                            <div class="control">
+                                <input class="input" type="text" id="productCategory">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Precio</label>
+                            <div class="control">
+                                <input class="input" type="number" id="productPrice" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Imagen URL</label>
+                            <div class="control">
+                                <input class="input" type="url" id="productImage" placeholder="https://ejemplo.com/imagen.jpg">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!--footer-->
+                    <footer class="modal-card-foot">
+                        <button class="button is-success" id="saveProduct">Guardar</button>
+                        <button class="button" id="cancelModal">Cancelar</button>
+                    </footer>
+                </div>
+            </div>
+
+                    <!--Modal confirmación para eliminar-->
+                    <div class="modal" id="deleteModal">
+                        <div class="modal-background"></div>
+                        <div class="modal-card">
+                            <header class="modal-card-head has-background-danger">
+                                <p class="modal-card-title has-text-white">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>Confirmar Eliminación</p>
+                                <button class="delete" id="closeDeleteModal"></button>
+                            </header>
+                            <section class="modal-card-body"><p>¿Estás seguro que deseas eliminar este producto?</p>
+                            <p class="has-text-weight-bold" id="deleteProductName"></p>
+                            <p class="has-text-danger">Esta acción no se puede deshacer.</p>
+                        </section>
+                        <footer class="modal-card-foot is-justify-content-flex-end">
+                            <button class="button is-danger" id="confirmDelete">
+                            <span class="icon"><i class="fas fa-trash"></i></span>
+                            <span>Eliminar</span>
+                        </button>
+                        <button class="button" id="cancelDelete">
+                            <span class="icon"><i class="fas fa-times"></i></span>
+                           <span>Cancelar</span>
+                        </button>
+                        </footer>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+  <footer class="footer has-background-primary mt-6">
+  <div class="content has-text-centered has-text-white">
+    <p>
+      <strong>Mi Tienda</strong> por <a class="has-text-white" href="#">Malala Soifer</a>. &copy; 2025.
+    </p>
+    <p>
+      <a href="#" class="has-text-white mr-3"><i class="fab fa-facebook fa-lg"></i></a>
+      <a href="#" class="has-text-white mr-3"><i class="fab fa-twitter fa-lg"></i></a>
+      <a href="#" class="has-text-white"><i class="fab fa-instagram fa-lg"></i></a>
+    </p>
+  </div>
+</footer>
+
+
+
+    <script src="./app.js" defer></script>
+
+
+</body>
+
+</html>
