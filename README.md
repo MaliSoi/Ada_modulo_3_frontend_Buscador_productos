@@ -39,8 +39,8 @@ Etiquetas visuales distintivas para categorías
 🚀 Cómo ejecutar el proyecto
 Clona este repositorio:
 
-git clone https://github.com/MaliSoi/ADA_Trabajo-Integrador
-cd ADA_Trabajo-Integrador
+git clone https://github.com/MaliSoi/Ada_modulo_3_frontend_Buscador_productos
+cd Ada_modulo_3_frontend_Buscador_productos
 
 Abre el archivo index.html en tu navegador o utiliza una extensión como Live Server en VS Code.
 
